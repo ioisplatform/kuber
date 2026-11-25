@@ -6,10 +6,42 @@
     <script>
       (function () {
         var l = window.location;
-        var basePath = '/kuber/';
-        var search = l.search || '';
-        var hash = l.hash || '';
-        l.replace(l.protocol + '//' + l.host + basePath + search + hash);
+        var path = l.pathname || '/';
+        var base = '/';
+        var rest = path;
+
+        if (path === '/kuber' || path.indexOf('/kuber/') === 0) {
+          if (path === '/kuber/docs' || path.indexOf('/kuber/docs/') === 0) {
+            base = '/kuber/docs/';
+            rest = path.slice('/kuber/docs'.length);
+          } else {
+            base = '/kuber/';
+            rest = path.slice('/kuber'.length);
+          }
+        }
+
+        var cleanRest = rest.replace(/^\/+|\/+$/g, '').toLowerCase();
+        var params = new URLSearchParams(l.search || '');
+        var knownPages = [
+          'home',
+          'plans',
+          'register',
+          'login',
+          'dashboard',
+          'verify',
+          'admin',
+          'contact',
+          'trust',
+        ];
+        if (cleanRest && knownPages.indexOf(cleanRest) !== -1 && !params.get('page')) {
+          params.set('page', cleanRest);
+        }
+
+        var query = params.toString();
+        var target = l.protocol + '//' + l.host + base + (query ? '?' + query : '') + (l.hash || '');
+        if (l.href !== target) {
+          l.replace(target);
+        }
       })();
     </script>
   </head>

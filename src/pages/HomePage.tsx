@@ -2,6 +2,7 @@ import React from 'react';
 import { KUBER_PLANS } from '../data/plans';
 import { PlanType } from '../types';
 import { KuberRoyalInvitation } from '../components/KuberRoyalInvitation';
+import { HomeFaqSection } from '../components/HomeFaqSection';
 import {
   ShieldCheck,
   Award,
@@ -540,6 +541,9 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         </div>
       </section>
+
+      {/* 6. COLLAPSIBLE FAQ SECTION (ID Verification & Referral Rewards) */}
+      <HomeFaqSection onNavigate={onNavigate} onSelectPlan={onSelectPlan} />
     </div>
   );
 };

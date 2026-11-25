@@ -5,6 +5,12 @@ import './index.css';
 
 const rootEl = document.getElementById('root');
 
+declare global {
+  interface Window {
+    __KUBER_MOUNTED__?: boolean;
+  }
+}
+
 function renderFallback(message: string) {
   if (!rootEl) return;
   rootEl.innerHTML = `
@@ -19,8 +25,15 @@ function renderFallback(message: string) {
 }
 
 window.addEventListener('error', (event) => {
-  if (rootEl && rootEl.childElementCount === 0) {
+  if (rootEl && !window.__KUBER_MOUNTED__) {
     renderFallback(event.message || 'Unable to load portal script.');
+  }
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  if (rootEl && !window.__KUBER_MOUNTED__) {
+    const reason = event.reason instanceof Error ? event.reason.message : String(event.reason || 'Startup error');
+    renderFallback(reason);
   }
 });
 
@@ -31,6 +44,7 @@ try {
         <App />
       </StrictMode>
     );
+    window.__KUBER_MOUNTED__ = true;
   }
 } catch (err) {
   renderFallback(err instanceof Error ? err.message : 'Unexpected startup error.');

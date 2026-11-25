@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>KUBER - Knowledge Universe for Business, Earning & Rewards</title>
+    <script>
+      (function () {
+        var l = window.location;
+        var path = l.pathname || '/';
+        var base = '/';
+        var rest = path;
+
+        if (path === '/kuber' || path.indexOf('/kuber/') === 0) {
+          if (path === '/kuber/docs' || path.indexOf('/kuber/docs/') === 0) {
+            base = '/kuber/docs/';
+            rest = path.slice('/kuber/docs'.length);
+          } else {
+            base = '/kuber/';
+            rest = path.slice('/kuber'.length);
+          }
+        }
+
+        var cleanRest = rest.replace(/^\/+|\/+$/g, '').toLowerCase();
+        var params = new URLSearchParams(l.search || '');
+        var knownPages = [
+          'home',
+          'plans',
+          'register',
+          'login',
+          'dashboard',
+          'verify',
+          'admin',
+          'contact',
+          'trust',
+        ];
+        if (cleanRest && knownPages.indexOf(cleanRest) !== -1 && !params.get('page')) {
+          params.set('page', cleanRest);
+        }
+
+        var query = params.toString();
+        var target = l.protocol + '//' + l.host + base + (query ? '?' + query : '') + (l.hash || '');
+        if (l.href !== target) {
+          l.replace(target);
+        }
+      })();
+    </script>
+  </head>
+  <body style="background:#0A0A0A;color:#FFDF73;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;">
+    <p>Redirecting to KUBER Knowledge Universe...</p>
+  </body>
+</html>

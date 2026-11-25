@@ -1,31 +1,38 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getFirestore, doc, getDocFromServer, Firestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-// Initialize Firebase App instance safely
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let appInstance: FirebaseApp | null = null;
+let dbInstance: Firestore | null = null;
+let authInstance: Auth | null = null;
 
-// CRITICAL: Initialize Firestore with database ID from config
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
+try {
+  appInstance = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  dbInstance = getFirestore(appInstance, firebaseConfig.firestoreDatabaseId);
+  authInstance = getAuth(appInstance);
+} catch (err) {
+  console.warn('[KUBER] Firebase safe fallback mode:', err);
+}
+
+export const db = dbInstance as Firestore;
+export const auth = authInstance as Auth;
 
 // Connection check as required by Firebase skill
 export async function testConnection(): Promise<boolean> {
+  if (!dbInstance) return false;
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log('[KUBER] Firebase Firestore connection verified');
+    await getDocFromServer(doc(dbInstance, 'test', 'connection'));
     return true;
   } catch (error) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error('Please check your Firebase configuration.');
+      console.warn('Firestore offline or using local resilience cache.');
     }
-    // In preview/dev mode, return true if reached
     return false;
   }
 }
 
-// Automatically test on import
+// Automatically test on import without crashing
 testConnection().catch(() => {});
 
 // Operation error tracking compliant with Firebase skill

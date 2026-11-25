@@ -19,6 +19,29 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { KuberUser, PlanType } from './types';
 import { loadUserFromLocalCache, clearUserLocalCache, getUserByKuberId } from './firebase/db';
 
+const VALID_PAGES = new Set([
+  'home',
+  'plans',
+  'register',
+  'login',
+  'dashboard',
+  'verify',
+  'admin',
+  'contact',
+  'trust',
+]);
+
+function normalizePageName(raw?: string | null): string {
+  if (!raw) return 'home';
+  const cleaned = raw.trim().replace(/^#?\/+|\/+$/g, '').toLowerCase();
+  if (VALID_PAGES.has(cleaned)) return cleaned;
+  if (cleaned === 'faq' || cleaned === 'faqs' || cleaned === 'index.html') return 'home';
+  if (cleaned === 'help' || cleaned === 'support' || cleaned === 'helpdesk') return 'contact';
+  if (cleaned === 'safety' || cleaned === 'privacy') return 'trust';
+  if (cleaned === 'id' || cleaned === 'check') return 'verify';
+  return 'home';
+}
+
 export default function App() {
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('29');
@@ -33,7 +56,7 @@ export default function App() {
   });
   const [referrerName, setReferrerName] = useState<string>('');
 
-  // Handle URL parameters on load and popstate
+  // Handle URL parameters (query, hash, or subpath) on load and popstate
   useEffect(() => {
     const parseUrl = () => {
       const params = new URLSearchParams(window.location.search);
@@ -57,9 +80,13 @@ export default function App() {
       }
 
       if (page) {
-        setActivePage(page);
+        setActivePage(normalizePageName(page));
       } else if (verifyId) {
         setActivePage('verify');
+      } else if (window.location.hash && window.location.hash.startsWith('#/')) {
+        setActivePage(normalizePageName(window.location.hash));
+      } else {
+        setActivePage('home');
       }
 
       if (plan === '29' || plan === '99' || plan === '199') {
@@ -69,7 +96,11 @@ export default function App() {
 
     parseUrl();
     window.addEventListener('popstate', parseUrl);
-    return () => window.removeEventListener('popstate', parseUrl);
+    window.addEventListener('hashchange', parseUrl);
+    return () => {
+      window.removeEventListener('popstate', parseUrl);
+      window.removeEventListener('hashchange', parseUrl);
+    };
   }, []);
 
   // Resolve referrer's name for personalized royal welcome
@@ -92,18 +123,26 @@ export default function App() {
   }, [referredByParam]);
 
   const navigateTo = (page: string, extraParams?: Record<string, string>) => {
-    setActivePage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Update query params without full reload
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', page);
-    if (extraParams) {
-      Object.entries(extraParams).forEach(([k, v]) => {
-        url.searchParams.set(k, v);
-      });
+    const normalized = normalizePageName(page);
+    setActivePage(normalized);
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      window.scrollTo(0, 0);
     }
-    window.history.pushState({}, '', url.toString());
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', normalized);
+      if (extraParams) {
+        Object.entries(extraParams).forEach(([k, v]) => {
+          url.searchParams.set(k, v);
+        });
+      }
+      window.history.pushState({}, '', url.toString());
+    } catch {
+      // Ignore history restrictions in sandboxed environments
+    }
   };
 
   const handleSelectPlan = (plan: PlanType) => {

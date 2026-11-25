@@ -18,12 +18,16 @@ import { constructKuberId } from '../utils/kuberId';
 // Persistent client device ID generator
 export function getOrCreateDeviceId(): string {
   const STORAGE_KEY = 'kuber_device_id';
-  let devId = localStorage.getItem(STORAGE_KEY);
-  if (!devId) {
-    devId = 'dev_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now().toString(36);
-    localStorage.setItem(STORAGE_KEY, devId);
+  try {
+    let devId = localStorage.getItem(STORAGE_KEY);
+    if (!devId) {
+      devId = 'dev_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now().toString(36);
+      localStorage.setItem(STORAGE_KEY, devId);
+    }
+    return devId;
+  } catch {
+    return 'dev_mem_' + Math.random().toString(36).substring(2, 10);
   }
-  return devId;
 }
 
 // Simple deterministic hash for student password matching
