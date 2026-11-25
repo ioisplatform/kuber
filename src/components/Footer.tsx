@@ -1,6 +1,7 @@
 import React from 'react';
 import { KuberLogo } from './KuberLogo';
 import { generateQRCodeDataUri } from '../utils/qr';
+import { getPortalHomeUrl } from '../utils/portalUrl';
 import { ShieldCheck, Phone, Mail, MapPin, QrCode, Sparkles, CheckCircle2, Heart, Clock, MessageSquare } from 'lucide-react';
 
 interface FooterProps {
@@ -8,7 +9,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const portalUrl = window.location.origin;
+  const portalUrl = getPortalHomeUrl();
   const qrUri = generateQRCodeDataUri(portalUrl, 130);
 
   return (

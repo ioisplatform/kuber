@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUserByKuberId } from '../firebase/db';
 import { KuberUser } from '../types';
 import { generateQRCodeDataUri } from '../utils/qr';
+import { buildVerifyUrl } from '../utils/portalUrl';
 import {
   ShieldCheck,
   Search,
@@ -65,7 +66,7 @@ export const VerifyPage: React.FC<VerifyPageProps> = ({ initialId = '', onNaviga
   const testIds = ['KUBER29RK01', 'KUBER99AK15', 'KUBER199VK01'];
 
   const qrUri = resultUser
-    ? generateQRCodeDataUri(`${window.location.origin}/?page=verify&id=${resultUser.kuberId}`, 150)
+    ? generateQRCodeDataUri(buildVerifyUrl(resultUser.kuberId), 150)
     : '';
 
   const getPlanLabel = (p: string) => {

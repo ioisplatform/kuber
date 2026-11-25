@@ -1,6 +1,7 @@
 import React from 'react';
 import { KuberUser } from '../types';
 import { generateQRCodeDataUri } from '../utils/qr';
+import { buildVerifyUrl } from '../utils/portalUrl';
 import { Award, Download, Printer, CheckCircle2 } from 'lucide-react';
 
 interface CertificateViewProps {
@@ -8,7 +9,7 @@ interface CertificateViewProps {
 }
 
 export const CertificateView: React.FC<CertificateViewProps> = ({ user }) => {
-  const verifyUrl = `${window.location.origin}/?page=verify&id=${user.kuberId}`;
+  const verifyUrl = buildVerifyUrl(user.kuberId);
   const qrUri = generateQRCodeDataUri(verifyUrl, 140);
 
   const handlePrint = () => {

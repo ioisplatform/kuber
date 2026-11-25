@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { KuberUser } from '../types';
 import { generateQRCodeDataUri } from '../utils/qr';
 import { downloadIdCard } from '../utils/idCardGenerator';
+import { buildVerifyUrl } from '../utils/portalUrl';
 import {
   Download,
   ShieldCheck,
@@ -25,7 +26,7 @@ export const IdCardView: React.FC<IdCardViewProps> = ({ user, allowDownload = tr
   const [activeSide, setActiveSide] = useState<'front' | 'back'>('front');
   const [downloading, setDownloading] = useState(false);
 
-  const verifyUrl = `${window.location.origin}/?page=verify&id=${user.kuberId}`;
+  const verifyUrl = buildVerifyUrl(user.kuberId);
   const qrUri = generateQRCodeDataUri(verifyUrl, 160);
 
   const handleDownload = async (side: 'front' | 'back') => {

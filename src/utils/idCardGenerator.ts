@@ -1,5 +1,6 @@
 import { KuberUser } from '../types';
 import { generateQRCodeDataUri } from './qr';
+import { buildVerifyUrl } from './portalUrl';
 
 /**
  * Draws a royal, ultra-crisp Black & Gold KUBER Student ID Card (Front or Back)
@@ -194,7 +195,7 @@ export async function generateIdCardCanvas(
     ctx.lineWidth = 3;
     ctx.strokeRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12);
 
-    const verifyUrl = `${window.location.origin}/?page=verify&id=${user.kuberId}`;
+    const verifyUrl = buildVerifyUrl(user.kuberId);
     const qrUri = generateQRCodeDataUri(verifyUrl, qrSize);
     const qrImg = new Image();
     await new Promise((resolve) => {

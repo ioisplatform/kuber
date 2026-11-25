@@ -24,6 +24,14 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('29');
   const [currentUser, setCurrentUser] = useState<KuberUser | null>(() => loadUserFromLocalCache());
   const [verifyIdParam, setVerifyIdParam] = useState<string>('');
+  const [referredByParam, setReferredByParam] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('kuber_ref_code') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [referrerName, setReferrerName] = useState<string>('');
 
   // Handle URL parameters on load and popstate
   useEffect(() => {
@@ -32,6 +40,17 @@ export default function App() {
       const page = params.get('page');
       const plan = params.get('plan') as PlanType | null;
       const verifyId = params.get('id');
+      const refCode = params.get('ref');
+
+      if (refCode) {
+        const cleanRef = refCode.trim().toUpperCase();
+        setReferredByParam(cleanRef);
+        try {
+          sessionStorage.setItem('kuber_ref_code', cleanRef);
+        } catch {
+          // Ignore storage restrictions
+        }
+      }
 
       if (verifyId) {
         setVerifyIdParam(verifyId.trim().toUpperCase());
@@ -43,7 +62,7 @@ export default function App() {
         setActivePage('verify');
       }
 
-      if (plan === '29' || plan === '99') {
+      if (plan === '29' || plan === '99' || plan === '199') {
         setSelectedPlan(plan);
       }
     };
@@ -52,6 +71,25 @@ export default function App() {
     window.addEventListener('popstate', parseUrl);
     return () => window.removeEventListener('popstate', parseUrl);
   }, []);
+
+  // Resolve referrer's name for personalized royal welcome
+  useEffect(() => {
+    let cancelled = false;
+    if (!referredByParam) {
+      setReferrerName('');
+      return;
+    }
+    getUserByKuberId(referredByParam)
+      .then((u) => {
+        if (!cancelled && u?.fullName) {
+          setReferrerName(u.fullName);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [referredByParam]);
 
   const navigateTo = (page: string, extraParams?: Record<string, string>) => {
     setActivePage(page);
@@ -117,6 +155,8 @@ export default function App() {
           <HomePage
             onSelectPlan={handleSelectPlan}
             onNavigate={(page) => navigateTo(page)}
+            referredBy={referredByParam}
+            referrerName={referrerName}
           />
         )}
 
@@ -130,6 +170,8 @@ export default function App() {
         {activePage === 'register' && (
           <RegisterPage
             initialPlan={selectedPlan}
+            initialReferredBy={referredByParam}
+            referrerName={referrerName}
             onRegisteredSuccess={handleRegisteredSuccess}
             onNavigateToLogin={() => navigateTo('login')}
           />

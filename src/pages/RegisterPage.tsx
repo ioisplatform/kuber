@@ -28,12 +28,16 @@ import {
 
 interface RegisterPageProps {
   initialPlan?: PlanType;
+  initialReferredBy?: string;
+  referrerName?: string;
   onRegisteredSuccess: (user: KuberUser) => void;
   onNavigateToLogin: () => void;
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({
   initialPlan = '29',
+  initialReferredBy = '',
+  referrerName = '',
   onRegisteredSuccess,
   onNavigateToLogin,
 }) => {
@@ -43,7 +47,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [upiTxnId, setUpiTxnId] = useState('');
-  const [referredBy, setReferredBy] = useState('');
+  const [referredBy, setReferredBy] = useState(() => {
+    if (initialReferredBy) return initialReferredBy.trim().toUpperCase();
+    try {
+      return (sessionStorage.getItem('kuber_ref_code') || '').trim().toUpperCase();
+    } catch {
+      return '';
+    }
+  });
 
   // Image states
   const [photoPreview, setPhotoPreview] = useState<string>('');
@@ -64,7 +75,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   // Check URL query parameters for referral and plan
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const ref = params.get('ref');
+    const ref = params.get('ref') || initialReferredBy;
     const urlPlan = params.get('plan') as PlanType | null;
 
     if (ref) {
@@ -73,7 +84,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
     if (urlPlan && (urlPlan === '29' || urlPlan === '99' || urlPlan === '199')) {
       setPlan(urlPlan);
     }
-  }, []);
+  }, [initialReferredBy]);
 
   const selectedPlanDetails = KUBER_PLANS.find((p) => p.id === plan) || KUBER_PLANS[0];
 
@@ -203,14 +214,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
           {/* Top Gold Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-6">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            Registration Submitted Successfully
+            कुबेर राजकोष में आपका नाम अंकित • Registration Confirmed
           </div>
 
-          <h2 className="font-royal text-2xl sm:text-3xl font-bold text-white mb-1">
-            Welcome to KUBER Universe!
+          <h2 className="font-royal text-2xl sm:text-3xl font-bold text-white mb-2">
+            आयुष्मान भव, <span className="gold-gradient-text">{registeredUser.fullName}</span>!
           </h2>
-          <p className="text-xs text-zinc-400 mb-6 max-w-md mx-auto">
-            Your official lifetime student enrollment request has been registered in the Patna Central Registry.
+          <p className="text-xs sm:text-sm text-zinc-300 mb-6 max-w-md mx-auto leading-relaxed">
+            स्वयं धन के देवता <strong className="text-[#FFDF73]">कुबेर</strong> के Knowledge Universe में आपका हार्दिक स्वागत है। आपका स्थायी स्वर्ण KUBER ID आधिकारिक रूप से पंजीकृत हो गया है।
           </p>
 
           {/* Non-Editable KUBER ID Banner */}
@@ -303,6 +314,18 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
           <p className="text-xs text-zinc-400 mt-1 max-w-lg mx-auto">
             Kuber = Dhan ke Devta, every Indian trusts + remembers. Secure your non-editable permanent student identity pass and academic vaults.
           </p>
+
+          {referredBy && (
+            <div className="mt-4 max-w-xl mx-auto p-3.5 rounded-2xl bg-gradient-to-r from-[#221A07] via-[#151107] to-[#221A07] border border-[#D4AF37]/70 flex items-center justify-center gap-2.5 text-xs shadow-[0_4px_20px_rgba(212,175,55,0.2)]">
+              <Sparkles className="w-4 h-4 text-[#FFDF73] shrink-0" />
+              <span className="text-zinc-200">
+                <strong className="text-[#FFDF73]">श्री कुबेर का राज-आमंत्रण सक्रिय:</strong> Invited by{' '}
+                <strong className="text-white font-mono">
+                  {referrerName ? `${referrerName} (${referredBy})` : referredBy}
+                </strong>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Step 1: 3-Plan Selection Cards (IOIS Style) */}
