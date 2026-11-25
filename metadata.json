@@ -1,0 +1,6 @@
+{
+  "name": "KUBER - Knowledge Universe for Business, Earning & Rewards",
+  "description": "KUBER - Knowledge Universe for Business, Earning & Rewards. Empowering Indian students with Gyan Dhan, Rozgar Dhan & Maha Dhan plans, immutable KUBER ID system, exam vaults, and verified student credentials.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

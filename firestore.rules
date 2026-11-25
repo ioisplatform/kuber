@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Connection validation endpoint for Firebase health check
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // Catalog of educational plans
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Atomic join counters
+    match /counters/{counterId} {
+      allow read, write: if true;
+    }
+
+    // User accounts keyed strictly by immutable KUBER ID
+    match /users/{kuberId} {
+      // Read allowed for ID card verification, login authentication, and dashboard
+      allow read: if true;
+
+      // User registration: new accounts must have matching non-editable kuberId and pending status
+      allow create: if isValidId(kuberId) &&
+        request.resource.data.kuberId == kuberId &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.fullName is string &&
+        request.resource.data.plan in ['29', '99', '199'];
+
+      // Update: Admin approval/rejection or user login device sync, kuberId can NEVER change
+      allow update: if isValidId(kuberId) &&
+        request.resource.data.kuberId == resource.data.kuberId;
+
+      // Hard delete forbidden: system mandates soft-delete only
+      allow delete: if false;
+    }
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

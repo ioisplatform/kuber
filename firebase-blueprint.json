@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered KUBER student with immutable KUBER ID primary key",
+      "type": "object",
+      "properties": {
+        "kuberId": {
+          "type": "string",
+          "description": "Immutable primary key e.g. KB29RK01",
+          "pattern": "^KB(29|99)[A-Z]{2}[0-9]+$"
+        },
+        "fullName": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "passwordHash": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "plan": {
+          "type": "string",
+          "enum": ["29", "99"]
+        },
+        "joinNumber": {
+          "type": "number"
+        },
+        "photoUrl": {
+          "type": "string"
+        },
+        "paymentScreenshotUrl": {
+          "type": "string"
+        },
+        "upiTxnId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected", "deleted"]
+        },
+        "rejectionReason": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "approvedAt": {
+          "type": "string"
+        },
+        "deviceIds": {
+          "type": "array"
+        },
+        "earnings": {
+          "type": "number"
+        },
+        "referredBy": {
+          "type": "string",
+          "maxLength": 30
+        }
+      },
+      "required": ["kuberId", "fullName", "email", "phone", "plan", "status", "createdAt"]
+    },
+    "Counter": {
+      "title": "Counter",
+      "description": "Auto-increment counters for join numbers per plan",
+      "type": "object",
+      "properties": {
+        "plan29Count": {
+          "type": "number"
+        },
+        "plan99Count": {
+          "type": "number"
+        }
+      }
+    },
+    "Plan": {
+      "title": "Plan",
+      "description": "Educational plan definitions",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "benefits": {
+          "type": "array"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{kuberId}": {
+      "schema": "User",
+      "description": "Collection of student users keyed by their unique immutable KUBER ID"
+    },
+    "/counters/counters": {
+      "schema": "Counter",
+      "description": "Atomic auto-increment counters for plan join numbers"
+    },
+    "/plans/{planId}": {
+      "schema": "Plan",
+      "description": "Educational plan catalog"
+    },
+    "/test/connection": {
+      "schema": {
+        "$ref": "#/entities/Plan"
+      },
+      "description": "Connection test document for health check"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #0A0A0A;
+    color: #F3F4F6;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-royal {
+    font-family: 'Cinzel', serif;
+  }
+
+  .font-mono-code {
+    font-family: 'Space Mono', monospace;
+  }
+}
+
+/* Custom Gold and Black Theme Utilities */
+.bg-kuber-black {
+  background-color: #0A0A0A;
+}
+
+.bg-kuber-card {
+  background: linear-gradient(180deg, #141414 0%, #0D0D0D 100%);
+}
+
+.border-kuber-gold {
+  border-color: #D4AF37;
+}
+
+.text-kuber-gold {
+  color: #D4AF37;
+}
+
+.text-kuber-gold-light {
+  color: #FFDF73;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFF0B3 0%, #D4AF37 50%, #AA820A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #FFDF73 0%, #D4AF37 50%, #997A15 100%);
+}
+
+.gold-border-glow {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2), inset 0 0 10px rgba(212, 175, 55, 0.05);
+}
+
+.royal-border {
+  border: 1px solid #D4AF37;
+  position: relative;
+}
+
+.royal-border-corner::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #FFDF73;
+  border-left: 2px solid #FFDF73;
+}
+
+.royal-border-corner::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid #FFDF73;
+  border-right: 2px solid #FFDF73;
+}
+
+/* KUBER Logo Glowing System & Metallic Sheen */
+@keyframes kuberAuraPulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes kuberOrbitSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes kuberShimmerSweep {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.65;
+  }
+  45%, 100% {
+    transform: translateX(220%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.kuber-aura-glow {
+  animation: kuberAuraPulse 3.6s ease-in-out infinite;
+}
+
+.kuber-orbit-ring {
+  animation: kuberOrbitSpin 22s linear infinite;
+}
+
+.kuber-sheen-sweep {
+  animation: kuberShimmerSweep 5.5s ease-in-out infinite;
+}
+
+@keyframes kuberCaretBlink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.kuber-typing-caret {
+  animation: kuberCaretBlink 0.9s step-end infinite;
+}
+
+
